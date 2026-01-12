@@ -1,0 +1,33 @@
+======================================================================
+RELATÓRIO DE SAÚDE DO SISTEMA
+Data: 2026-01-12 | Hora: 13:21:07
+Hostname: devops-debian
+Sistema: Debian GNU/Linux 13 (trixie)
+======================================================================
+
+=== [1] MÉTRICAS DE CPU ===
+Load Average: 0,04, 0,05, 0,05
+
+=== [2] USO DE MEMÓRIA ===
+Tipo       Total      Usado      Livre     
+RAM        3,8Gi      552Mi      2,7Gi     
+Swap       1,1Gi      0B         1,1Gi     
+
+=== [3] USO DE DISCO (Filesystems Físicos) ===
+Sist. Arq.      Tam. Usado Disp. Uso% Montado em
+/dev/sda1        19G  1,3G   17G   8% /
+
+=== [4] TEMPERATURA DO SISTEMA ===
+Sensores não detectados.
+
+=== [5] TOP 5 PROCESSOS (Por Consumo de CPU) ===
+    PID    PPID CMD                         %MEM %CPU
+  17125   17105 ps -eo pid,ppid,cmd,%mem,%c  0.1  300
+  17105   17051 /bin/bash ./scripts/monitor  0.0  2.2
+  17050   17020 sshd-session: devops@pts/0   0.1  1.5
+  17063       2 [kworker/0:1-events_freezab  0.0  0.5
+  17104       2 [kworker/0:2-events]         0.0  0.4
+
+======================================================================
+Fim do relatório.
+======================================================================
