@@ -1,32 +1,38 @@
-# 🏥 Monitor de Saúde do Sistema (Linux/Debian)
+# 🏥 Monitor de Saúde do Sistema (System Health Monitor)
 
-Sistema de observabilidade e backup automatizado para servidores Linux Debian.
-Coleta métricas vitais (CPU, RAM, Disco, Temperatura), gera logs auditáveis e sincroniza automaticamente com repositório remoto via Git.
+![Bash](https://img.shields.io/badge/Language-Bash-4EAA25?style=flat-square)
+![Linux](https://img.shields.io/badge/OS-Debian%20Linux-A81D33?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Stable%20v1.0.0-blue?style=flat-square)
 
----
-
-## 🚀 Funcionalidades
-
-* **Coleta Abrangente:** Monitora Load Average, Uso de Memória, Partições de Disco e Sensores Térmicos.
-* **Automação:** Execução diária via Cron (sem intervenção humana).
-* **Auto-Healing:** Recria estrutura de diretórios e arquivos se deletados acidentalmente.
-* **Hardening:** Permissões restritas (`700`/`600`) seguindo o princípio do menor privilégio.
-* **Git Sync:** Versionamento automático dos logs para backup offsite (GitHub/GitLab).
-* **Fail-Safe:** Tratamento de erros de rede e execução, com logs de falha dedicados.
+> Sistema automatizado de observabilidade, hardening e backup de logs para servidores Linux Debian.
 
 ---
 
-## 📂 Estrutura do Projeto
+## 📘 Descrição do Projeto
 
+Este projeto implementa uma solução de monitoramento *agentless* (sem agente pesado) para servidores Linux. Ele coleta métricas vitais, gera relatórios de auditoria imutáveis e realiza backup automático offsite via Git.
+
+**Problema Resolvido:** Elimina a necessidade de verificação manual diária da saúde do servidor e garante histórico de dados para auditoria em caso de incidentes.
+
+---
+
+## 🧱 Arquitetura e Estrutura
+
+<<<<<<< HEAD
+=======
+O sistema opera com base na filosofia Unix: ferramentas pequenas e modulares conectadas por pipes e arquivos de texto.
+
+>>>>>>> 8164147 (readme)
 ```text
 monitor-saude-sistema/
 ├── configs/
-│   └── config.env       # Configurações globais (NÃO COMITAR SEGREDOS AQUI)
+│   └── config.env       # Variáveis de ambiente (Feature flags, caminhos)
 ├── logs/
-│   ├── YYYY/MM/         # Logs organizados hierarquicamente
-│   ├── error.log        # Registro de falhas críticas
-│   └── cron_launcher.log # Logs de execução do agendador
+│   ├── YYYY/MM/         # Rotação automática de logs por Ano/Mês
+│   ├── error.log        # Registro segregado de falhas críticas
+│   └── cron_launcher.log # Logs de execução do agendador (Cron)
 ├── scripts/
+<<<<<<< HEAD
 │   └── monitor.sh       # Script principal (Engine)
 └── README.md            # Esta documentação
 ```
@@ -72,3 +78,7 @@ Se o servidor for perdido, os logs estão salvos no GitHub. Para restaurar em um
 
 **Status do Projeto:** ✅ Estável / Produção
 **Mantenedor:** Equipe DevOps O2B
+=======
+│   └── monitor.sh       # Engine principal (Coleta, Lógica e Git Sync)
+└── README.md            # Documentação Técnica
+>>>>>>> 8164147 (readme)
