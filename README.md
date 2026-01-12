@@ -18,7 +18,7 @@ Coleta métricas vitais (CPU, RAM, Disco, Temperatura), gera logs auditáveis e 
 
 ## 📂 Estrutura do Projeto
 
-\`\`\`text
+```text
 monitor-saude-sistema/
 ├── configs/
 │   └── config.env       # Configurações globais (NÃO COMITAR SEGREDOS AQUI)
@@ -29,7 +29,7 @@ monitor-saude-sistema/
 ├── scripts/
 │   └── monitor.sh       # Script principal (Engine)
 └── README.md            # Esta documentação
-\`\`\`
+```
 
 ## ⚙️ Instalação e Configuração
 
@@ -42,13 +42,13 @@ monitor-saude-sistema/
 O sistema roda automaticamente às 09:00 AM.
 Para verificar ou instalar:
 
-\`\`\`bash
+```bash
 # Verifique se o job existe
 crontab -l
 
 # Exemplo de entrada (Caminhos absolutos são obrigatórios):
 0 9 * * * /usr/bin/bash /home/usuario/monitor-saude-sistema/scripts/monitor.sh >> /home/usuario/monitor-saude-sistema/logs/cron_launcher.log 2>&1
-\`\`\`
+```
 
 ## 🛡️ Segurança (Hardening)
 
@@ -63,9 +63,9 @@ As permissões foram endurecidas para evitar execução não autorizada:
 Se o servidor for perdido, os logs estão salvos no GitHub. Para restaurar em um novo servidor:
 
 1.  Clone o repositório:
-    \`git clone git@github.com:seu-usuario/monitor-saude-sistema.git\`
+    `git clone git@github.com:r2WillDev/monitor-saude-sistema.git`
 2.  Restaure as permissões de segurança:
-    \`chmod 700 scripts/monitor.sh && chmod 600 configs/config.env\`
+    `chmod 700 scripts/monitor.sh && chmod 600 configs/config.env`
 3.  Reconfigure o Cron (ver seção acima).
 
 ---
