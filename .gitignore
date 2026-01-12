@@ -1,0 +1,16 @@
+# --- Arquivos de Sistema e IDEs ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Arquivos Temporários ---
+*.tmp
+*.bak
+*.swp
+*~
+
+# --- Regras de Logs ---
+# Por padrão, ignoraríamos *.log, mas neste projeto
+# eles são artefatos de auditoria obrigatórios.
+# Portanto, NÃO incluímos *.log aqui.
