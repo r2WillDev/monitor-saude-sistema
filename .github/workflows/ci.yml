@@ -1,0 +1,16 @@
+name: CI Monitor
+on: [push, pull_request]
+
+jobs:
+  sanity-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Check Scripts Executable
+        run: |
+          if [ -f scripts/monitor.sh ]; then
+            chmod +x scripts/monitor.sh
+            ./scripts/monitor.sh  # Dry run ou check simples
+          fi

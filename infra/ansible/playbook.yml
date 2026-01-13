@@ -1,0 +1,7 @@
+---
+# Ansible Playbook Placeholder
+- hosts: all
+  tasks:
+    - name: Placeholder task
+      debug:
+        msg: "Ansible playbook initialized for Monitor System"

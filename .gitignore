@@ -1,16 +1,24 @@
-# --- Arquivos de Sistema e IDEs ---
+# --- Logs e Monitoramento ---
+logs/*
+!logs/.gitkeep
+*.log
+cron_launcher.log
+
+# --- Configurações e Segredos (Segurança) ---
+configs/config.env
+.env
+*.pem
+
+# --- Infraestrutura (Terraform) ---
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# --- Automação (Ansible) ---
+*.retry
+
+# --- Sistema e IDE ---
 .DS_Store
-Thumbs.db
 .vscode/
 .idea/
-
-# --- Arquivos Temporários ---
-*.tmp
-*.bak
-*.swp
-*~
-
-# --- Regras de Logs ---
-# Por padrão, ignoraríamos *.log, mas neste projeto
-# eles são artefatos de auditoria obrigatórios.
-# Portanto, NÃO incluímos *.log aqui.
