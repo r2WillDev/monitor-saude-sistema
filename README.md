@@ -76,11 +76,6 @@ Se o servidor for perdido, os logs estão salvos no GitHub. Para restaurar em um
 
 **Status do Projeto:** ✅ Estável / Produção
 **Mantenedor:** Equipe DevOps O2B
-=======
-│   └── monitor.sh       # Engine principal (Coleta, Lógica e Git Sync)
-└── README.md            # Documentação Técnica
-=======
-```
 
 ## ⚙️ Instalação
 
