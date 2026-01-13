@@ -1,0 +1,3 @@
+Ambiente: dev
+Gerenciado por: Terraform
+Data: 2026

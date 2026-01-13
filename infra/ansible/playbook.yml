@@ -1,7 +1,28 @@
 ---
-# Ansible Playbook Placeholder
-- hosts: all
+- name: Padronização do Servidor de Monitoramento
+  hosts: servers
+  become: true  # Executar como root (sudo)
+  
   tasks:
-    - name: Placeholder task
-      debug:
-        msg: "Ansible playbook initialized for Monitor System"
+    - name: Atualizar cache do apt
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600 # Só atualiza se o cache tiver mais de 1h
+
+    - name: Instalar pacotes essenciais
+      apt:
+        name:
+          - git
+          - curl
+          - htop
+          - vim
+          - tree
+        state: present
+
+    - name: Garantir diretório de logs globais
+      file:
+        path: /var/log/monitor-saude
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
