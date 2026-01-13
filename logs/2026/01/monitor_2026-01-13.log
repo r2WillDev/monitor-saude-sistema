@@ -1,0 +1,25 @@
+======================================================================
+RELATÓRIO: MonitorSys (production)
+Data: 2026-01-13 | Hora: 10:00:01
+Hostname: devops-debian
+======================================================================
+
+=== [CPU] ===
+Load Average: 0,00, 0,00, 0,00
+Detalhes de CPU indisponíveis via Top.
+
+=== [MEMÓRIA] ===
+Mem.:          3,8Gi       439Mi       3,4Gi       732Ki       219Mi       3,4Gi
+Swap:          1,1Gi          0B       1,1Gi
+
+=== [DISCO] ===
+Sist. Arq.      Tam. Usado Disp. Uso% Montado em
+/dev/sda1        19G  1,3G   17G   8% /
+
+=== [TEMPERATURA] ===
+Sensores não disponíveis.
+
+----------------------------------------------------------------------
+Fim da execução: 10:00:01
+----------------------------------------------------------------------
+
