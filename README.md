@@ -18,11 +18,10 @@ Este projeto implementa uma solução de monitoramento *agentless* (sem agente p
 
 ## 🧱 Arquitetura e Estrutura
 
-<<<<<<< HEAD
 =======
 O sistema opera com base na filosofia Unix: ferramentas pequenas e modulares conectadas por pipes e arquivos de texto.
 
->>>>>>> 8164147 (readme)
+
 ```text
 monitor-saude-sistema/
 ├── configs/
@@ -32,7 +31,6 @@ monitor-saude-sistema/
 │   ├── error.log        # Registro segregado de falhas críticas
 │   └── cron_launcher.log # Logs de execução do agendador (Cron)
 ├── scripts/
-<<<<<<< HEAD
 │   └── monitor.sh       # Script principal (Engine)
 └── README.md            # Esta documentação
 ```
@@ -81,4 +79,54 @@ Se o servidor for perdido, os logs estão salvos no GitHub. Para restaurar em um
 =======
 │   └── monitor.sh       # Engine principal (Coleta, Lógica e Git Sync)
 └── README.md            # Documentação Técnica
->>>>>>> 8164147 (readme)
+=======
+```
+
+## ⚙️ Instalação
+
+### Pré-requisitos
+- **OS:** Linux Debian 10+ (ou derivados do Ubuntu).
+- **Dependências:** `git`, `coreutils`, `curl`.
+- **Opcional:** `lm-sensors` (para temperatura de hardware)
+
+### Passo a Passo
+1. **Clone o Repositório**
+```bash
+git clone git@github.com:r2WillDev/monitor-saude-sistema.git
+cd monitor-saude-sistema
+```
+2. **Configure as Permissões (Hardening):** O Script possui travas de segurança. Aplique as permissões restritas:
+
+```bash
+chmod 700 scripts/monitor.sh
+chmod 600 configs/config.env
+```
+3. **Teste Manual**
+
+```bash
+./scripts/monitor.sh
+# verifique se o log foi gerado em logs/yyyy/mm/
+```
+
+## 🔄 Automação e Agendamento
+
+A execução é gerenciada pelo `cron`. Para configurar a execução diária às 09:00 AM: 
+
+```bash
+# Adicione ao crontab do usuário (crontab -e)
+0 9 * * * /usr/bin/bash /caminho/absoluto/para/monitor-saude-sistema/scripts/monitor.sh >> /caminho/absoluto/para/monitor-saude-sistema/logs/cron_launcher.log 2>&1
+```
+
+### Fluxo de Dados
+1. `Cron` aciona o script.
+2. Script coleta métricas (CPU, RAM, Disco, Temp)
+3. Dados são anexados ao log do dia (`monitor_YYYY-MM-DD.log`)
+4. Script verifica conexão com Git
+5. Se houver mudança, realiza `commit` e `push` automáticos
+
+## 🛡 Segurança e Boas Práticas
+Este projeto segue práticas de **SRE/DevOps:**
+- **Principio de Menor Privilégio:** Arquivos de configuração são legivéis apenas pelo dono (`600`)
+- **Fail-Safe:** O script detecta falhas de rede (Git) e registra em `error.log` sem interromper a coleta de dados locais.
+- **Idempotência** Execuções repetidas não duplicam commits nem corrompem arquivos
+- **Sanitização** Uso de `set -u` e `pipefail` para evitar execução com variáveis não definidas. 
