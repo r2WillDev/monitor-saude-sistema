@@ -1,16 +1,33 @@
-name: CI Monitor
-on: [push, pull_request]
+name: CI Pipeline - Monitor Saude
 
+# GATILHOS: Quando este pipeline deve rodar?
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - '**.md' # Não roda se só mudou documentação (economia de recursos)
+  pull_request:
+    branches: [ "main" ]
+
+# TRABALHOS: O que deve ser feito?
 jobs:
-  sanity-check:
+  # Job 1: Verificação de Qualidade (Linting)
+  lint-scripts:
+    name: Lint Shell Scripts
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Check Scripts Executable
+      # Passo 1: Baixar o código do repositório
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Passo 2: Instalar o ShellCheck (Linter oficial de Bash)
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      # Passo 3: Rodar o teste estático nos scripts
+      # -x: Segue includes (source)
+      - name: Run ShellCheck
         run: |
-          if [ -f scripts/monitor.sh ]; then
-            chmod +x scripts/monitor.sh
-            ./scripts/monitor.sh  # Dry run ou check simples
-          fi
+          echo "Iniciando análise estática de segurança..."
+          shellcheck -x scripts/*.sh
