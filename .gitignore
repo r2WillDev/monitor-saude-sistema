@@ -22,3 +22,4 @@ configs/config.env
 .DS_Store
 .vscode/
 .idea/
+!logs/system_metrics.txt

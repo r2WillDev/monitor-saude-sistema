@@ -1,156 +1,91 @@
-#!/bin/bash
-# -------------------------------------------------------------------------
-# Projeto: Monitor de Saúde do Sistema (SRE Hardened Version)
-# Arquivo: monitor.sh
-# Descrição: Coleta métricas e sincroniza com Git.
-#            Versão com tratamento de erros e Help Message.
+#!/usr/bin/env bash
 #
-# Autor: Arthur O2B Team
-# -------------------------------------------------------------------------
+# monitor.sh
+# Coleta métricas do sistema e registra em logs (Arquivo + JSON Stdout)
+#
+# Autor: Arthur O2B
+#
+# ----------------------------------------------------------------------
 
-set -u          # Erro se usar variável não declarada
-set -o pipefail # Erro se qualquer parte de um pipe falhar
+set -e
 
-# --- Funções Auxiliares (Usage) ---
-usage() {
-    cat <<USAGE
-Uso: $0 [opções]
-
-Script principal de monitoramento do sistema.
-Coleta métricas (CPU, RAM, Disco, Temperatura) baseadas nas variáveis de ambiente
-definidas em configs/config.env e registra em logs/git.
-
-Opções:
-  -h, --help    Exibe esta mensagem de ajuda e sai.
-
-Dependências:
-  git, df, free, uptime, hostname
-
-Exemplo:
-  ./scripts/monitor.sh
-
-USAGE
-    exit 1
-}
-
-# --- Verificação de Argumentos ---
-# Verifica help antes de qualquer lógica pesada
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    usage
-fi
-
-# --- Inicialização ---
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIG_FILE="$BASE_DIR/configs/config.env"
-ERROR_LOG="$BASE_DIR/logs/error.log"
+LOG_DIR="$BASE_DIR/logs"
+LOG_FILE="$LOG_DIR/system_metrics.txt"
 
-log_error() {
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] ERRO: $1" >> "$ERROR_LOG"
+if [ -f "$CONFIG_FILE" ]; then
+    source "$CONFIG_FILE"
+fi
+
+mkdir -p "$LOG_DIR"
+
+log_file() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
 }
 
-# --- Carregamento de Configurações ---
-if [ -f "$CONFIG_FILE" ]; then
-    # shellcheck disable=SC1090
-    source "$CONFIG_FILE"
-else
-    echo "CRITICAL: Configuração não encontrada em $CONFIG_FILE" >&2
-    echo "Use --help para mais informações." >&2
-    exit 1
-fi
+log_json() {
+    local level="$1"
+    local component="$2"
+    local msg="$3"
+    local metric_name="${4:-null}"
+    local metric_value="${5:-0}"
+    local timestamp
+    timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
-# --- Verificação de Dependências ---
-for cmd in git df free uptime hostname; do
-    if ! command -v $cmd &> /dev/null; then
-        log_error "Comando obrigatório '$cmd' não encontrado. Abortando."
-        exit 1
-    fi
-done
+    printf '{"timestamp": "%s", "level": "%s", "component": "%s", "message": "%s", "metric": "%s", "value": %s}\n' \
+        "$timestamp" "$level" "$component" "$msg" "$metric_name" "$metric_value"
+}
 
-# --- Definição de Variáveis de Tempo ---
-ANO_ATUAL=$(date +'%Y')
-MES_ATUAL=$(date +'%m')
-DIA_ATUAL=$(date +'%Y-%m-%d')
-HORA_ATUAL=$(date +'%H:%M:%S')
+check_cpu() {
+    local cpu_usage
+    cpu_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
+    log_file "CPU Usage: ${cpu_usage}%"
+    log_json "INFO" "cpu" "Coleta de CPU realizada" "cpu_usage_percent" "$cpu_usage"
+}
 
-# --- Preparação de Diretórios ---
-LOG_PATH="$BASE_DIR/logs/$ANO_ATUAL/$MES_ATUAL"
-mkdir -p "$LOG_PATH" || { log_error "Falha ao criar diretório $LOG_PATH"; exit 1; }
+check_memory() {
+    local mem_usage
+    mem_usage=$(free -m | awk '/Mem:/ { print $3 }')
 
-ARQUIVO_LOG="$LOG_PATH/monitor_$DIA_ATUAL.log"
+    log_file "Memory Usage: ${mem_usage}MB"
+    log_json "INFO" "memory" "Coleta de Memoria realizada" "memory_usage_mb" "$mem_usage"
+}
 
-# --- Execução da Coleta ---
-(
-    echo "======================================================================"
-    echo "RELATÓRIO: ${PROJECT_NAME:-Monitor} (${ENV_TYPE:-Unknown})"
-    echo "Data: $DIA_ATUAL | Hora: $HORA_ATUAL"
-    echo "Hostname: $(hostname)"
-    echo "======================================================================"
-    echo ""
+check_disk() {
+    local disk_usage
+    disk_usage=$(df -h / | awk '/\// {print $5}' | sed 's/%//')
 
-    # CPU
-    if [ "${ENABLE_CPU_STATS:-false}" = "true" ]; then
-        echo "=== [CPU] ==="
-        uptime | awk -F'load average:' '{ print "Load Average:" $2 }' | xargs
-        top -bn1 2>/dev/null | grep "Cpu(s)" | awk '{print "Uso: " $2 "% user, " $4 "% system, " $8 "% idle"}' || echo "Detalhes de CPU indisponíveis via Top."
-        echo ""
-    fi
+    log_file "Disk Usage: ${disk_usage}%"
+    log_json "INFO" "disk" "Coleta de Disco realizada" "disk_usage_percent" "$disk_usage"
+}
 
-    # Memória
-    if [ "${ENABLE_MEM_STATS:-false}" = "true" ]; then
-        echo "=== [MEMÓRIA] ==="
-        free -h | grep -E "Mem|Swap" || echo "Erro ao ler memória."
-        echo ""
-    fi
+log_file "--- Iniciando Monitoramento ---"
+log_json "INFO" "main" "Iniciando ciclo de monitoramento"
 
-    # Disco
-    if [ "${ENABLE_DISK_STATS:-false}" = "true" ]; then
-        echo "=== [DISCO] ==="
-        df -h --output=source,size,used,avail,pcent,target -x tmpfs -x devtmpfs -x loop || echo "Erro ao ler disco."
-        echo ""
-    fi
+if [ "${ENABLE_CPU_STATS:-true}" = "true" ]; then check_cpu; fi
+if [ "${ENABLE_MEM_STATS:-true}" = "true" ]; then check_memory; fi
+if [ "${ENABLE_DISK_STATS:-true}" = "true" ]; then check_disk; fi
 
-    # Temperatura
-    if [ "${ENABLE_TEMP_STATS:-false}" = "true" ]; then
-        echo "=== [TEMPERATURA] ==="
-        if [ -d "/sys/class/thermal/thermal_zone0" ]; then
-             TEMP=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null)
-             if [ -n "$TEMP" ]; then
-                echo "CPU Zone0: $(awk "BEGIN {printf \"%.1f\", $TEMP/1000}")°C"
-             else
-                echo "Erro leitura sensor."
-             fi
-        else
-             echo "Sensores não disponíveis."
-        fi
-        echo ""
-    fi
+if [ -d "$BASE_DIR/.git" ]; then
+    cd "$BASE_DIR"
+    git config user.name "${GIT_AUTHOR_NAME:-Monitor Bot}"
+    git config user.email "${GIT_AUTHOR_EMAIL:-bot@monitor.local}"
 
-    echo "----------------------------------------------------------------------"
-    echo "Fim da execução: $HORA_ATUAL"
-    echo "----------------------------------------------------------------------"
-    echo ""
+    git add "$LOG_FILE"
 
-) >> "$ARQUIVO_LOG" 2>> "$ERROR_LOG"
+if ! git diff --staged --quiet; then
+        COMMIT_MSG="chore(logs): auto-report $(date +'%Y-%m-%d') [automated]"
+        git commit -m "$COMMIT_MSG" > /dev/null
+        log_json "INFO" "git" "Relatorio salvo no git"
 
-chmod 640 "$ARQUIVO_LOG"
-
-# --- Sincronização Git ---
-cd "$BASE_DIR" || { log_error "Falha ao acessar $BASE_DIR para git sync"; exit 1; }
-
-git add logs/
-
-if ! git diff-index --quiet HEAD; then
-    if git commit -m "chore(logs): auto-report $DIA_ATUAL [automated]"; then
-        if command -v timeout &> /dev/null; then
-            PUSH_CMD="timeout 30s git push origin main"
-        else
-            PUSH_CMD="git push origin main"
-        fi
-
-        if ! eval "$PUSH_CMD" > /dev/null 2>&1; then
-            log_error "Falha no git push (Rede ou Permissão SSH)."
-        fi
+        # eval "$PUSH_CMD" > /dev/null 2>&1 || true
     else
-        log_error "Falha ao realizar git commit."
+        log_json "INFO" "git" "Sem mudancas nos logs para commitar"
     fi
+else
+    log_json "WARN" "git" "Diretorio .git nao encontrado. Pulo etapa de versionamento."
 fi
+
+log_file "--- Fim do Ciclo ---"
+log_json "INFO" "main" "Ciclo finalizado"
