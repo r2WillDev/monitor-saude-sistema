@@ -1,0 +1,9 @@
+.git
+.gitignore
+infra
+docker
+*.md
+LICENSE
+logs
+tmp
+**/*.log
