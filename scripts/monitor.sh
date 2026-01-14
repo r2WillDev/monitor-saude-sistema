@@ -15,6 +15,7 @@ LOG_DIR="$BASE_DIR/logs"
 LOG_FILE="$LOG_DIR/system_metrics.txt"
 
 if [ -f "$CONFIG_FILE" ]; then
+    # shellcheck disable=SC1090
     source "$CONFIG_FILE"
 fi
 
