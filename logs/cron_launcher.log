@@ -3,3 +3,18 @@ Log salvo em: /home/devops/monitor-saude-sistema/logs/2026/01/monitor_2026-01-12
 [main 0f104c2] chore(logs): auto-report 2026-01-13 [automated]
  1 file changed, 25 insertions(+)
  create mode 100644 logs/2026/01/monitor_2026-01-13.log
+On branch main
+Your branch is ahead of 'origin/main' by 2 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   scripts/monitor.sh
+	modified:   scripts/provision.sh
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	scripts/bootstrap.sh
+
+no changes added to commit (use "git add" and/or "git commit -a")
