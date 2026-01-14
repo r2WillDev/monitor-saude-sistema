@@ -1,127 +1,71 @@
-# 🏥 Monitor de Saúde do Sistema (System Health Monitor)
+# 📊 Monitor de Saúde do Sistema
 
-![Bash](https://img.shields.io/badge/Language-Bash-4EAA25?style=flat-square)
-![Linux](https://img.shields.io/badge/OS-Debian%20Linux-A81D33?style=flat-square)
-![Status](https://img.shields.io/badge/Status-Stable%20v1.0.0-blue?style=flat-square)
+![CI Pipeline](https://github.com/r2WillDev/monitor-saude-sistema/actions/workflows/ci.yml/badge.svg)
+![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)
+![Bash](https://img.shields.io/badge/script-bash-success?logo=gnu-bash)
 
-> Sistema automatizado de observabilidade, hardening e backup de logs para servidores Linux Debian.
-
----
-
-## 📘 Descrição do Projeto
-
-Este projeto implementa uma solução de monitoramento *agentless* (sem agente pesado) para servidores Linux. Ele coleta métricas vitais, gera relatórios de auditoria imutáveis e realiza backup automático offsite via Git.
-
-**Problema Resolvido:** Elimina a necessidade de verificação manual diária da saúde do servidor e garante histórico de dados para auditoria em caso de incidentes.
+Um sistema automatizado para monitoramento de recursos (CPU, Memória, Disco) em servidores Linux Debian, com suporte a containerização e pipelines de CI/CD.
 
 ---
 
-## 🧱 Arquitetura e Estrutura
+## 🚀 Funcionalidades
 
-=======
-O sistema opera com base na filosofia Unix: ferramentas pequenas e modulares conectadas por pipes e arquivos de texto.
+* **Coleta de Métricas:** Monitoramento em tempo real de uso de recursos.
+* **Logs Automatizados:** Geração de relatórios com timestamp.
+* **Git Ops:** Commit automático dos logs para histórico de auditoria.
+* **Containerização:** Execução isolada via Docker e Docker Compose.
+* **CI/CD:** Pipeline automatizado no GitHub Actions para Lint e Build.
 
+---
 
-```text
-monitor-saude-sistema/
-├── configs/
-│   └── config.env       # Variáveis de ambiente (Feature flags, caminhos)
-├── logs/
-│   ├── YYYY/MM/         # Rotação automática de logs por Ano/Mês
-│   ├── error.log        # Registro segregado de falhas críticas
-│   └── cron_launcher.log # Logs de execução do agendador (Cron)
-├── scripts/
-│   └── monitor.sh       # Script principal (Engine)
-└── README.md            # Esta documentação
-```
+## 🛠️ Como Usar
 
-## ⚙️ Instalação e Configuração
-
-### 1. Pré-requisitos
-* Linux Debian/Ubuntu
-* Git configurado com chaves SSH
-* Pacotes: `coreutils`, `lm-sensors` (opcional)
-
-### 2. Configuração do Cron
-O sistema roda automaticamente às 09:00 AM.
-Para verificar ou instalar:
+### Opção 1: Rodando com Docker (Recomendado)
+A maneira mais fácil e segura de rodar o monitor sem instalar dependências no seu host.
 
 ```bash
-# Verifique se o job existe
-crontab -l
-
-# Exemplo de entrada (Caminhos absolutos são obrigatórios):
-0 9 * * * /usr/bin/bash /home/usuario/monitor-saude-sistema/scripts/monitor.sh >> /home/usuario/monitor-saude-sistema/logs/cron_launcher.log 2>&1
-```
-
-## 🛡️ Segurança (Hardening)
-
-As permissões foram endurecidas para evitar execução não autorizada:
-
-* `scripts/monitor.sh`: **700** (Apenas dono executa)
-* `configs/config.env`: **600** (Apenas dono lê)
-* `.git/`: **700** (Proteção do histórico)
-
-## 🆘 Disaster Recovery (Restauração)
-
-Se o servidor for perdido, os logs estão salvos no GitHub. Para restaurar em um novo servidor:
-
-1.  Clone o repositório:
-    `git clone git@github.com:r2WillDev/monitor-saude-sistema.git`
-2.  Restaure as permissões de segurança:
-    `chmod 700 scripts/monitor.sh && chmod 600 configs/config.env`
-3.  Reconfigure o Cron (ver seção acima).
-
----
-
-**Status do Projeto:** ✅ Estável / Produção
-**Mantenedor:** Equipe DevOps O2B
-
-## ⚙️ Instalação
-
-### Pré-requisitos
-- **OS:** Linux Debian 10+ (ou derivados do Ubuntu).
-- **Dependências:** `git`, `coreutils`, `curl`.
-- **Opcional:** `lm-sensors` (para temperatura de hardware)
-
-### Passo a Passo
-1. **Clone o Repositório**
-```bash
-git clone git@github.com:r2WillDev/monitor-saude-sistema.git
+# 1. Clone o repositório
+git clone [https://github.com/r2WillDev/monitor-saude-sistema.git](https://github.com/r2WillDev/monitor-saude-sistema.git)
 cd monitor-saude-sistema
+
+# 2. Inicie o ambiente (Isso fará o build da imagem automaticamente)
+docker compose -f docker/docker-compose.yml up --build
 ```
-2. **Configure as Permissões (Hardening):** O Script possui travas de segurança. Aplique as permissões restritas:
+
+### Opção 2: Instalação Nativa (Linux Debian/Ubuntu)
+Para servidores onde você deseja que o monitor rode diretamente no SO.
 
 ```bash
-chmod 700 scripts/monitor.sh
-chmod 600 configs/config.env
-```
-3. **Teste Manual**
+# 1. Execute o script de provisionamento (Instala git, curl, cria usuário)
+sudo ./scripts/provision.sh
 
-```bash
+# 2. Configure as variáveis
+cp configs/config.env.example configs/config.env
+# (Edite o arquivo config.env se necessário)
+
+# 3. Execute o monitor
 ./scripts/monitor.sh
-# verifique se o log foi gerado em logs/yyyy/mm/
 ```
 
-## 🔄 Automação e Agendamento
-
-A execução é gerenciada pelo `cron`. Para configurar a execução diária às 09:00 AM: 
-
-```bash
-# Adicione ao crontab do usuário (crontab -e)
-0 9 * * * /usr/bin/bash /caminho/absoluto/para/monitor-saude-sistema/scripts/monitor.sh >> /caminho/absoluto/para/monitor-saude-sistema/logs/cron_launcher.log 2>&1
+## 📂 Estrutura do Projeto
+```plaintext
+.
+├── .github/        # Pipelines de CI/CD (GitHub Actions)
+├── configs/        # Arquivos de configuração (.env)
+├── docker/         # Dockerfile e docker-compose.yml
+├── logs/           # Diretório onde os relatórios são salvos
+├── scripts/        # Scripts principais (monitor, provision, install)
+└── README.md       # Documentação
 ```
 
-### Fluxo de Dados
-1. `Cron` aciona o script.
-2. Script coleta métricas (CPU, RAM, Disco, Temp)
-3. Dados são anexados ao log do dia (`monitor_YYYY-MM-DD.log`)
-4. Script verifica conexão com Git
-5. Se houver mudança, realiza `commit` e `push` automáticos
+## 🤝 Contribuição
+1. Faça um Fork do projeto
 
-## 🛡 Segurança e Boas Práticas
-Este projeto segue práticas de **SRE/DevOps:**
-- **Principio de Menor Privilégio:** Arquivos de configuração são legivéis apenas pelo dono (`600`)
-- **Fail-Safe:** O script detecta falhas de rede (Git) e registra em `error.log` sem interromper a coleta de dados locais.
-- **Idempotência** Execuções repetidas não duplicam commits nem corrompem arquivos
-- **Sanitização** Uso de `set -u` e `pipefail` para evitar execução com variáveis não definidas. 
+2. Crie uma Branch para sua Feature (git checkout -b feature/Incrivel)
+
+3. Commit suas mudanças (git commit -m 'feat: Adiciona algo incrivel')
+
+4. Push para a Branch (git push origin feature/Incrivel)
+
+5. Abra um Pull Request
+
