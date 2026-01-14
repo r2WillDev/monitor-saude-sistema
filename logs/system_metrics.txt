@@ -1,0 +1,8 @@
+[2026-01-14 13:12:12] --- Iniciando Monitoramento ---
+[2026-01-14 13:12:12] CPU Usage: %
+[2026-01-14 13:12:12] Memory Usage: MB
+[2026-01-14 13:12:12] Disk Usage: 17%
+[2026-01-14 16:16:15] --- Iniciando Monitoramento ---
+[2026-01-14 16:16:15] CPU Usage: 100%
+[2026-01-14 16:16:16] Memory Usage: 703MB
+[2026-01-14 16:16:16] Disk Usage: 17%
