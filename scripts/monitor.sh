@@ -50,6 +50,7 @@ log_error() {
 
 # --- Carregamento de Configurações ---
 if [ -f "$CONFIG_FILE" ]; then
+    # shellcheck disable=SC1090
     source "$CONFIG_FILE"
 else
     echo "CRITICAL: Configuração não encontrada em $CONFIG_FILE" >&2
@@ -146,7 +147,7 @@ if ! git diff-index --quiet HEAD; then
             PUSH_CMD="git push origin main"
         fi
 
-        if ! eval $PUSH_CMD > /dev/null 2>&1; then
+        if ! eval "$PUSH_CMD" > /dev/null 2>&1; then
             log_error "Falha no git push (Rede ou Permissão SSH)."
         fi
     else

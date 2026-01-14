@@ -36,6 +36,7 @@ USAGE
 
 log() {
     local msg="$1"
+    # shellcheck disable=SC2155
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     echo "[$timestamp] [PROVISION] $msg" | tee -a "$LOG_FILE"
 }
@@ -57,6 +58,7 @@ log "Sistema atualizado."
 
 log "Instalando pacotes essenciais..."
 PACKAGES="curl wget git ca-certificates gnupg lsb-release htop tree "
+    # shellcheck disable=SC2086
 apt-get install -y $PACKAGES
 log "Dependências instaladas."
 
