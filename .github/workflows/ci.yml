@@ -1,33 +1,51 @@
 name: CI Pipeline - Monitor Saude
 
-# GATILHOS: Quando este pipeline deve rodar?
 on:
   push:
     branches: [ "main" ]
-    paths-ignore:
-      - '**.md' # Não roda se só mudou documentação (economia de recursos)
+    paths-ignore: [ '**.md' ]
   pull_request:
     branches: [ "main" ]
 
-# TRABALHOS: O que deve ser feito?
 jobs:
-  # Job 1: Verificação de Qualidade (Linting)
+  # JOB 1: Qualidade de Código (Mantido)
   lint-scripts:
     name: Lint Shell Scripts
     runs-on: ubuntu-latest
-    
     steps:
-      # Passo 1: Baixar o código do repositório
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Passo 2: Instalar o ShellCheck (Linter oficial de Bash)
       - name: Install ShellCheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
 
-      # Passo 3: Rodar o teste estático nos scripts
-      # -x: Segue includes (source)
       - name: Run ShellCheck
-        run: |
-          echo "Iniciando análise estática de segurança..."
-          shellcheck -x scripts/*.sh
+        # Ignora erro SC2164 (cd sem verificação) apenas para exemplo, se necessário
+        # Mas vamos tentar rodar estrito primeiro
+        run: shellcheck -x scripts/*.sh
+
+  # JOB 2: Build Docker (NOVO!)
+  docker-build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: lint-scripts # Só roda se o Lint passar (Fail Fast)
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Configura o QEMU/Buildx (Necessário para builds modernos e cache)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Tenta construir a imagem
+      # Se o Dockerfile estiver quebrado, o pipeline para aqui.
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: false # Em CI puro, não damos push para o DockerHub ainda
+          tags: monitor-saude:test
+          cache-from: type=gha # Usa cache do GitHub para ser rápido
+          cache-to: type=gha,mode=max
